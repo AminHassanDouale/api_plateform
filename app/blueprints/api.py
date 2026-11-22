@@ -32,7 +32,8 @@ def create_payment():
     amount_raw = str(data.get("amount", "")).strip()
     try:
         amount = Decimal(amount_raw)
-        if amount <= 0:
+        # Reject NaN/Infinity (they slip past a plain `<= 0` check) and non-positive.
+        if not amount.is_finite() or amount <= 0:
             raise InvalidOperation
     except (InvalidOperation, ValueError):
         return jsonify(error="invalid_amount",

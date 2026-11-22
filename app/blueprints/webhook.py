@@ -60,7 +60,10 @@ def _handle(raw_body: bytes, signature: str):
     client = DMoneyClient(current_app.config)
     verified_with = client.verify_webhook(raw_body, signature)
 
-    if client.public_key and not verified_with and current_app.config["DMONEY_STRICT_SIGNATURE"]:
+    # Fail CLOSED: if strict mode is on and the signature didn't verify — whether
+    # because it was wrong, absent, or no public key is loaded — reject. (Don't
+    # gate this on `client.public_key`, or a missing key file silently disables it.)
+    if current_app.config["DMONEY_STRICT_SIGNATURE"] and not verified_with:
         return {"code": "1", "msg": "signature verification failed"}, 401
 
     try:

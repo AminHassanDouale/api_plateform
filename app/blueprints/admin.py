@@ -1,7 +1,7 @@
 """Admin panel — onboard partners, issue API keys, oversee all tenants."""
 from datetime import datetime
 
-from flask import (Blueprint, flash, redirect, render_template, request,
+from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
 
 from ..models import ApiKey, Partner, Payment, User, db
@@ -89,7 +89,9 @@ def issue_key(partner_id):
 @admin_required
 def revoke_key(key_id):
     key = db.session.get(ApiKey, key_id)
-    if key and key.active:
+    if not key:
+        abort(404)
+    if key.active:
         key.revoked_at = datetime.utcnow()
         db.session.commit()
         flash("API key revoked.", "success")
