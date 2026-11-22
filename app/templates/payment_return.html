@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Payment status · D-Money{% endblock %}
+{% block guest %}
+<div class="login-wrap">
+  <div class="login-card" style="width:440px;text-align:center">
+    <div class="brand">⚡ D-Money Payments</div>
+
+    {% if not pay %}
+      <div style="font-size:52px;line-height:1">🔎</div>
+      <h1>Payment not found</h1>
+      <p>We couldn't match this payment. If you just paid, it may still be
+         processing — please return to your order page and check again.</p>
+
+    {% elif pay.status == 'SUCCESS' %}
+      <div style="font-size:52px;line-height:1">✅</div>
+      <h1>Payment successful</h1>
+      <p>Thank you! Your payment of <b>{{ pay.amount }} {{ pay.currency }}</b> is confirmed.</p>
+
+    {% elif pay.status in ['FAILED', 'CLOSED'] %}
+      <div style="font-size:52px;line-height:1">❌</div>
+      <h1>Payment {{ pay.status|lower }}</h1>
+      <p>Your payment of {{ pay.amount }} {{ pay.currency }} did not complete.
+         No money was taken — you can try again from your order page.</p>
+
+    {% else %}
+      <div style="font-size:52px;line-height:1">⏳</div>
+      <h1>Confirming your payment…</h1>
+      <p>We're waiting for the final confirmation of your
+         <b>{{ pay.amount }} {{ pay.currency }}</b> payment. This page refreshes automatically.</p>
+    {% endif %}
+
+    {% if pay %}
+    <dl class="kv" style="grid-template-columns:120px 1fr;text-align:left;margin-top:22px">
+      <dt>Status</dt><dd><span class="badge {{ pay.status|badge }}">{{ pay.status }}</span></dd>
+      <dt>Reference</dt><dd>{{ pay.reference or '—' }}</dd>
+      <dt>Amount</dt><dd>{{ pay.amount }} {{ pay.currency }}</dd>
+      <dt>Payment id</dt><dd class="mono" style="font-size:12px">{{ pay.public_id }}</dd>
+    </dl>
+      {% if pay.status == 'PENDING' %}
+        <a class="btn ghost" style="margin-top:18px" href="{{ request.full_path }}">Check again</a>
+        <script>setTimeout(function(){ location.reload(); }, 5000);</script>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -46,7 +46,8 @@ def create_app(config_object=Config):
     from .blueprints.auth import auth_bp
     from .blueprints.dashboard import dashboard_bp
     from .blueprints.admin import admin_bp
-    for bp in (api_bp, webhook_bp, auth_bp, dashboard_bp, admin_bp):
+    from .blueprints.public import public_bp
+    for bp in (api_bp, webhook_bp, auth_bp, dashboard_bp, admin_bp, public_bp):
         app.register_blueprint(bp)
 
     # Make current_user available in every template.
