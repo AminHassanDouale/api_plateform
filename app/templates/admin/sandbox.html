@@ -55,7 +55,7 @@
         <div class="sbx-actions">
           <a class="btn sm ghost" target="_blank"
              href="{{ base_url }}/payment/return?payment_id={{ p.public_id }}">Return page ↗</a>
-          <a class="btn sm ghost" target="_blank" href="{{ p.checkout_url }}">Checkout ↗</a>
+          <a class="btn sm ghost" target="_blank" href="{{ base_url }}/checkout/{{ p.public_id }}">Checkout ↗</a>
           {% if p.status == 'PENDING' %}
             <form method="post" action="{{ url_for('admin.sandbox_simulate', public_id=p.public_id) }}">
               <input type="hidden" name="outcome" value="SUCCESS">

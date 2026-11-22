@@ -82,6 +82,8 @@ class Payment(db.Model):
                              cascade="all, delete-orphan")
 
     def to_api(self) -> dict:
+        from flask import current_app
+        base = current_app.config["PLATFORM_BASE_URL"].rstrip("/")
         return {
             "payment_id": self.public_id,
             "reference": self.reference,
@@ -89,6 +91,9 @@ class Payment(db.Model):
             "currency": self.currency,
             "status": self.status,
             "trade_no": self.trade_no,
+            # Branded own-domain checkout link (redirects to checkout_url); send
+            # the customer here. checkout_url is the raw D-Money gateway URL.
+            "checkout_page": f"{base}/checkout/{self.public_id}",
             "checkout_url": self.checkout_url,
             "created_at": self.created_at.isoformat() + "Z" if self.created_at else None,
             "paid_at": self.paid_at.isoformat() + "Z" if self.paid_at else None,
