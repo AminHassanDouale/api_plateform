@@ -175,8 +175,9 @@ def sandbox_create():
                   return_url=base + "/payment/return")
     db.session.add(pay)
     db.session.commit()
-    flash(f"Created test payment {pay.public_id} — {amount_str} {currency}.", "success")
-    return redirect(url_for("admin.sandbox"))
+    # Send the operator straight to the D-Money checkout page for this payment
+    # (via our branded /checkout/<id>, which forwards to the gateway).
+    return redirect(url_for("public.checkout", public_id=pay.public_id))
 
 
 @admin_bp.get("/logs")

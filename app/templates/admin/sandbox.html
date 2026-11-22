@@ -11,7 +11,8 @@
 </style>
 
 <h1>Payment Sandbox 🧪</h1>
-<p class="page-sub">Create test payments and simulate their outcome — all internal, no real money moves.</p>
+<p class="page-sub">Create a payment and go straight to the D-Money checkout page (test gateway — no real money).
+  Simulate the outcome of any pending payment from the table below.</p>
 
 {% if simulate %}
 <div class="flash success" style="margin-bottom:18px">
@@ -34,7 +35,7 @@
     </div>
     <div><label>Reference (order id)</label><input name="reference" value="{{ suggested_ref }}"></div>
     <div><label>Title</label><input name="title" value="Test checkout"></div>
-    <div><button class="btn" type="submit">+ Create test payment</button></div>
+    <div><button class="btn" type="submit">Create &amp; go to checkout →</button></div>
   </form>
 </div>
 
