@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Developers · D-Money Platform{% endblock %}
+{% block body %}
+<h1>Developers</h1>
+<p class="page-sub">Your API keys and copy-paste integration snippets.</p>
+
+{% if new_key %}
+<div class="panel" style="padding:18px;margin-bottom:20px">
+  <b>New API key — copy it now</b>
+  <div class="keybox">{{ new_key }}</div>
+  <div class="keywarn">⚠ This is the only time the full key is shown. Store it in your backend env, never in the browser.</div>
+</div>
+{% endif %}
+
+<div class="toolbar">
+  <h2 style="margin:0">API keys</h2>
+  <form method="post" action="{{ url_for('dashboard.generate_key') }}" style="margin-left:auto">
+    <button class="btn sm" type="submit">+ Generate new key</button>
+  </form>
+</div>
+<div class="panel" style="margin-bottom:26px">
+<table>
+  <thead><tr><th>Prefix</th><th>Created</th><th>Last used</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for k in keys %}
+    <tr>
+      <td class="mono">{{ k.prefix }}</td>
+      <td><small>{{ k.created_at.strftime('%Y-%m-%d') }}</small></td>
+      <td><small>{{ k.last_used_at.strftime('%Y-%m-%d %H:%M') if k.last_used_at else 'never' }}</small></td>
+      <td><span class="badge {{ 'ok' if k.active else 'muted' }}">{{ 'active' if k.active else 'revoked' }}</span></td>
+      <td>{% if k.active %}
+        <form method="post" action="{{ url_for('dashboard.revoke_own_key', key_id=k.id) }}">
+          <button class="btn danger sm" type="submit">Revoke</button></form>
+      {% endif %}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5"><div class="empty">No keys yet — generate one above.</div></td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<h2>Endpoints</h2>
+<div class="kv" style="margin-bottom:24px">
+  <dt>Base URL</dt><dd class="mono">{{ base_url }}</dd>
+  <dt>Create payment</dt><dd class="mono">POST /api/v1/payments</dd>
+  <dt>Get payment</dt><dd class="mono">GET /api/v1/payments/&lt;payment_id&gt;</dd>
+  <dt>List payments</dt><dd class="mono">GET /api/v1/payments?status=SUCCESS&amp;page=1</dd>
+  <dt>Result webhook</dt><dd class="mono">{{ webhook_url or 'not set — ask your account manager to configure it' }}</dd>
+</div>
+
+<h2>1 · Create a payment &amp; redirect (cURL)</h2>
+<pre class="code">curl -X POST {{ base_url }}/api/v1/payments \
+  -H "Authorization: Bearer &lt;YOUR_API_KEY&gt;" \
+  -H "Content-Type: application/json" \
+  -d '{
+        "amount": "30.00",
+        "currency": "DJF",
+        "reference": "ORDER-123",
+        "title": "Wallet top-up",
+        "customer_ref": "user-42",
+        "return_url": "https://your-site.com/thank-you"
+      }'
+
+# → { "payment_id": "pay_...", "status": "PENDING", "checkout_url": "https://..." }
+# Redirect the customer to checkout_url.</pre>
+
+<h2>2 · PHP (Laravel / Guzzle)</h2>
+<pre class="code">$res = Http::withToken(env('DMONEY_PLATFORM_KEY'))
+    ->post('{{ base_url }}/api/v1/payments', [
+        'amount'    =&gt; '30.00',
+        'currency'  =&gt; 'DJF',
+        'reference' =&gt; $order-&gt;id,
+        'title'     =&gt; 'Wallet top-up',
+        'return_url'=&gt; route('payment.return'),
+    ]);
+
+return redirect()-&gt;away($res['checkout_url']);   // send the customer to pay</pre>
+
+<h2>3 · JavaScript (Node / fetch)</h2>
+<pre class="code">const r = await fetch("{{ base_url }}/api/v1/payments", {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${process.env.DMONEY_PLATFORM_KEY}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    amount: "30.00", currency: "DJF",
+    reference: order.id, title: "Wallet top-up",
+    return_url: "https://your-site.com/thank-you",
+  }),
+});
+const { checkout_url } = await r.json();
+res.redirect(checkout_url);                        // send the customer to pay</pre>
+
+<h2>4 · Poll a payment's status</h2>
+<pre class="code">curl {{ base_url }}/api/v1/payments/pay_xxx \
+  -H "Authorization: Bearer &lt;YOUR_API_KEY&gt;"
+# → { "status": "SUCCESS", "trade_no": "DM...", "paid_at": "..." }</pre>
+
+<p class="page-sub" style="margin-top:18px">Tip: you don't need to poll if you set a result webhook — we POST the final
+status to your <code>webhook_url</code> automatically.</p>
+{% endblock %}

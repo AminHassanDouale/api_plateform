@@ -1,0 +1,36 @@
+# --- Secrets & local environment ---
+.env
+.env.*
+!.env.production.example
+*.pem
+*.key
+dmoney_public_key.pem
+
+# --- Database (contains seeded data + password/API-key hashes) ---
+*.db
+*.sqlite
+*.sqlite3
+platform.db
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+
+# --- Editor / tooling ---
+.claude/
+.vscode/
+.idea/
+tempCodeRunnerFile.py
+
+# --- OS cruft ---
+.DS_Store
+Thumbs.db
+
+# --- Build artifacts ---
+docs/*.html

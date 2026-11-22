@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ partner.name }} · Admin{% endblock %}
+{% block body %}
+<a class="back" href="{{ url_for('admin.overview') }}">← Back</a>
+<h1>{{ partner.name }}
+  <span class="badge {{ 'ok' if partner.status=='active' else 'bad' }}">{{ partner.status }}</span></h1>
+<p class="page-sub">{{ partner.email or 'no email' }}{% if partner.webhook_url %} · webhook: {{ partner.webhook_url }}{% endif %}</p>
+
+{% if new_key %}
+<div class="panel" style="padding:18px;margin-bottom:20px">
+  <b>New API key — copy it now</b>
+  <div class="keybox">{{ new_key }}</div>
+  <div class="keywarn">⚠ This is the only time the full key is shown. Store it securely.</div>
+</div>
+{% endif %}
+
+<div class="toolbar">
+  <h2 style="margin:0">API keys</h2>
+  <form method="post" action="{{ url_for('admin.issue_key', partner_id=partner.id) }}" style="margin-left:auto">
+    <button class="btn sm" type="submit">+ Issue key</button>
+  </form>
+  <form method="post" action="{{ url_for('admin.toggle_partner', partner_id=partner.id) }}">
+    <button class="btn ghost sm" type="submit">{{ 'Suspend' if partner.status=='active' else 'Reactivate' }}</button>
+  </form>
+</div>
+<div class="panel" style="margin-bottom:24px">
+<table>
+  <thead><tr><th>Prefix</th><th>Created</th><th>Last used</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  {% for k in partner.api_keys %}
+    <tr>
+      <td class="mono">{{ k.prefix }}</td>
+      <td><small>{{ k.created_at.strftime('%Y-%m-%d') }}</small></td>
+      <td><small>{{ k.last_used_at.strftime('%Y-%m-%d %H:%M') if k.last_used_at else 'never' }}</small></td>
+      <td><span class="badge {{ 'ok' if k.active else 'muted' }}">{{ 'active' if k.active else 'revoked' }}</span></td>
+      <td>{% if k.active %}
+        <form method="post" action="{{ url_for('admin.revoke_key', key_id=k.id) }}">
+          <button class="btn danger sm" type="submit">Revoke</button></form>
+      {% endif %}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<h2>Recent payments</h2>
+<div class="panel">
+<table>
+  <thead><tr><th>Payment</th><th>Reference</th><th>Amount</th><th>Status</th><th>Created</th></tr></thead>
+  <tbody>
+  {% for p in payments %}
+    <tr>
+      <td class="mono">{{ p.public_id }}</td>
+      <td>{{ p.reference or '—' }}</td>
+      <td>{{ p.amount }} {{ p.currency }}</td>
+      <td><span class="badge {{ p.status|badge }}">{{ p.status }}</span></td>
+      <td><small>{{ p.created_at.strftime('%Y-%m-%d %H:%M') }}</small></td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5"><div class="empty">No payments yet.</div></td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

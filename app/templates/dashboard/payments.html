@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Payments · D-Money Platform{% endblock %}
+{% block body %}
+<h1>Payments</h1>
+<p class="page-sub">Follow every payment in real time.</p>
+
+<div class="cards">
+  <div class="card"><div class="n">{{ stats.total }}</div><div class="l">Total</div></div>
+  <div class="card"><div class="n">{{ stats.success }}</div><div class="l">Succeeded</div></div>
+  <div class="card"><div class="n">{{ stats.pending }}</div><div class="l">Pending</div></div>
+  <div class="card"><div class="n">{{ stats.paid_today }}</div><div class="l">Paid today</div></div>
+  <div class="card"><div class="n">{{ stats.rate }}%</div><div class="l">Success rate</div></div>
+</div>
+
+<form class="toolbar" method="get">
+  <input type="text" name="q" value="{{ search }}" placeholder="Search reference / id / customer">
+  <select name="status" onchange="this.form.submit()">
+    <option value="">All statuses</option>
+    {% for s in ['PENDING','SUCCESS','FAILED','CLOSED'] %}
+    <option value="{{ s }}" {{ 'selected' if status==s }}>{{ s|capitalize }}</option>
+    {% endfor %}
+  </select>
+  <button class="btn" type="submit">Filter</button>
+  <a class="btn ghost" href="{{ url_for('dashboard.export_csv') }}">Export CSV</a>
+</form>
+
+<div class="panel">
+<table>
+  <thead><tr>
+    <th>Payment</th><th>Reference</th>{% if current_user.is_admin %}<th>Partner</th>{% endif %}
+    <th>Amount</th><th>Status</th><th>Created</th><th></th>
+  </tr></thead>
+  <tbody>
+  {% for p in rows %}
+    <tr>
+      <td class="mono">{{ p.public_id }}</td>
+      <td>{{ p.reference or '—' }}</td>
+      {% if current_user.is_admin %}<td>{{ p.partner.name }}</td>{% endif %}
+      <td>{{ p.amount }} {{ p.currency }}</td>
+      <td><span class="badge {{ p.status|badge }}">{{ p.status }}</span></td>
+      <td><small>{{ p.created_at.strftime('%Y-%m-%d %H:%M') }}</small></td>
+      <td><a class="btn ghost sm" href="{{ url_for('dashboard.payment_detail', public_id=p.public_id) }}">View</a></td>
+    </tr>
+  {% else %}
+    <tr><td colspan="7"><div class="empty">No payments yet.</div></td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

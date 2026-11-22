@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ pay.public_id }} · Payment{% endblock %}
+{% block body %}
+<a class="back" href="{{ url_for('dashboard.payments') }}">← Back to payments</a>
+<h1>Payment {{ pay.public_id }}
+  <span class="badge {{ pay.status|badge }}">{{ pay.status }}</span></h1>
+<p class="page-sub">Reference {{ pay.reference or '—' }}</p>
+
+<dl class="kv">
+  <dt>Amount</dt><dd>{{ pay.amount }} {{ pay.currency }}</dd>
+  <dt>Title</dt><dd>{{ pay.title or '—' }}</dd>
+  <dt>Customer</dt><dd>{{ pay.customer_ref or '—' }}</dd>
+  {% if current_user.is_admin %}<dt>Partner</dt><dd>{{ pay.partner.name }}</dd>{% endif %}
+  <dt>Merch order id</dt><dd class="mono">{{ pay.merch_order_id }}</dd>
+  <dt>Prepay id</dt><dd class="mono">{{ pay.prepay_id or '—' }}</dd>
+  <dt>D-Money trade no</dt><dd class="mono">{{ pay.trade_no or '—' }}</dd>
+  <dt>Created</dt><dd>{{ pay.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</dd>
+  <dt>Paid at</dt><dd>{{ pay.paid_at.strftime('%Y-%m-%d %H:%M:%S') if pay.paid_at else '—' }}</dd>
+  <dt>Checkout URL</dt><dd class="url">{{ pay.checkout_url }}</dd>
+</dl>
+
+<form method="post" action="{{ url_for('dashboard.refresh_payment', public_id=pay.public_id) }}" style="margin-top:16px">
+  <button class="btn" type="submit">Refresh status from D-Money (QueryOrder)</button>
+</form>
+{% endblock %}

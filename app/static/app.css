@@ -1,0 +1,95 @@
+:root{
+  --bg:#f4f6fb; --panel:#ffffff; --ink:#1a1f2b; --muted:#6b7280;
+  --line:#e5e9f0; --brand:#1457d6; --brand-d:#0d1b3e;
+  --ok:#1a8f45; --okbg:#e7f7ec; --warn:#b7791f; --warnbg:#fff4e0;
+  --bad:#c0392b; --badbg:#fdecea; --mutedbg:#eef1f6;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+a{color:var(--brand);text-decoration:none}
+small{color:var(--muted)}
+
+/* ---- app shell ---- */
+.shell{display:flex;min-height:100vh}
+.side{width:230px;background:var(--brand-d);color:#dbe4f3;display:flex;flex-direction:column;padding:18px 0}
+.brand{display:flex;gap:10px;align-items:center;font-size:19px;font-weight:700;color:#fff;padding:0 20px 18px}
+.brand small{font-weight:400;color:#8fb0e8;font-size:11px}
+.side nav{display:flex;flex-direction:column;gap:2px;padding:0 12px}
+.side nav a{color:#c4d2ea;padding:10px 14px;border-radius:8px;font-weight:500}
+.side nav a:hover{background:#17275200;background:rgba(255,255,255,.06)}
+.side nav a.on{background:var(--brand);color:#fff}
+.side-foot{margin-top:auto;padding:16px 20px 0;border-top:1px solid rgba(255,255,255,.08)}
+.who{font-size:12px;color:#aebfdd;line-height:1.5}
+.role{text-transform:uppercase;font-size:10px;letter-spacing:.06em;color:#7f9bd0}
+.logout{display:inline-block;margin-top:10px;color:#ff9b8f;font-size:13px}
+.main{flex:1;padding:28px 34px;max-width:1150px}
+
+/* ---- headings ---- */
+h1{font-size:22px;margin:0 0 4px;color:var(--brand-d)}
+h2{font-size:16px;margin:26px 0 10px;color:var(--brand-d)}
+.page-sub{color:var(--muted);margin:0 0 22px}
+
+/* ---- stat cards ---- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:0 0 24px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.card .n{font-size:26px;font-weight:700;color:var(--brand-d)}
+.card .l{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+
+/* ---- tables ---- */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:11px 16px;border-bottom:1px solid var(--line);font-size:13px}
+th{background:#fafbfe;color:var(--muted);text-transform:uppercase;font-size:11px;letter-spacing:.04em}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#fafcff}
+.mono{font-family:"Consolas",monospace;font-size:12px}
+
+/* ---- badges ---- */
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge.ok{background:var(--okbg);color:var(--ok)}
+.badge.warn{background:var(--warnbg);color:var(--warn)}
+.badge.bad{background:var(--badbg);color:var(--bad)}
+.badge.muted{background:var(--mutedbg);color:var(--muted)}
+
+/* ---- forms / filters ---- */
+.toolbar{display:flex;gap:10px;align-items:center;margin:0 0 16px;flex-wrap:wrap}
+input,select{padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px;background:#fff;font-family:inherit}
+input:focus,select:focus{outline:none;border-color:var(--brand)}
+.btn{display:inline-block;background:var(--brand);color:#fff;border:none;padding:9px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px}
+.btn:hover{background:#1149b4}
+.btn.ghost{background:#fff;color:var(--brand);border:1px solid var(--line)}
+.btn.danger{background:var(--bad)}
+.btn.sm{padding:6px 11px;font-size:12px}
+
+/* ---- flash ---- */
+.flash{padding:11px 16px;border-radius:8px;margin:0 0 16px;font-size:13px}
+.flash.success{background:var(--okbg);color:var(--ok)}
+.flash.error{background:var(--badbg);color:var(--bad)}
+
+/* ---- key reveal / code blocks ---- */
+.keybox{background:#0f1729;color:#9ff0b5;padding:14px 16px;border-radius:10px;font-family:"Consolas",monospace;font-size:13px;word-break:break-all;margin:8px 0}
+.keywarn{color:var(--warn);font-size:12px}
+pre.code{background:#0f1729;color:#e6edf7;border-radius:10px;padding:14px 16px;font-family:"Consolas",monospace;font-size:12.5px;line-height:1.5;overflow-x:auto;margin:6px 0 10px;white-space:pre}
+
+/* ---- detail ---- */
+.kv{display:grid;grid-template-columns:160px 1fr;gap:8px 16px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.kv dt{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+.kv dd{margin:0;font-size:14px}
+.back{display:inline-block;margin-bottom:14px;color:var(--muted)}
+.url{word-break:break-all;font-family:"Consolas",monospace;font-size:11.5px;color:#334}
+
+/* ---- login ---- */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d1b3e,#1457d6)}
+.login-card{background:#fff;border-radius:16px;padding:34px 32px;width:360px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.login-card .brand{color:var(--brand-d);justify-content:center;padding:0 0 10px}
+.login-card h1{text-align:center;font-size:19px}
+.login-card p{text-align:center;color:var(--muted);margin:0 0 20px}
+.login-card label{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px;text-transform:uppercase;letter-spacing:.03em}
+.login-card input{width:100%}
+.login-card .btn{width:100%;margin-top:20px;padding:11px}
+.hint{margin-top:16px;font-size:12px;color:var(--muted);text-align:center;line-height:1.6}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;max-width:640px}
+.form-grid .full{grid-column:1/3}
+.form-grid label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.03em}
+.form-grid input{width:100%}

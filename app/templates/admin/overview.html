@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Admin · Overview{% endblock %}
+{% block body %}
+<h1>Admin overview</h1>
+<p class="page-sub">All partners and payments across the platform.</p>
+
+<div class="cards">
+  <div class="card"><div class="n">{{ stats.partners }}</div><div class="l">Partners</div></div>
+  <div class="card"><div class="n">{{ stats.payments }}</div><div class="l">Payments</div></div>
+  <div class="card"><div class="n">{{ stats.success }}</div><div class="l">Succeeded</div></div>
+  <div class="card"><div class="n">{{ stats.pending }}</div><div class="l">Pending</div></div>
+</div>
+
+<div class="toolbar">
+  <h2 style="margin:0">Partners</h2>
+  <a class="btn" href="{{ url_for('admin.new_partner') }}" style="margin-left:auto">+ New partner</a>
+</div>
+
+<div class="panel">
+<table>
+  <thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Created</th><th></th></tr></thead>
+  <tbody>
+  {% for p in partners %}
+    <tr>
+      <td>{{ p.name }}</td>
+      <td>{{ p.email or '—' }}</td>
+      <td><span class="badge {{ 'ok' if p.status=='active' else 'bad' }}">{{ p.status }}</span></td>
+      <td><small>{{ p.created_at.strftime('%Y-%m-%d') }}</small></td>
+      <td><a class="btn ghost sm" href="{{ url_for('admin.partner_detail', partner_id=p.id) }}">Manage</a></td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5"><div class="empty">No partners yet. Create your first one.</div></td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

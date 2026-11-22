@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block guest %}
+<div class="login-wrap">
+  <form class="login-card" method="post">
+    <div class="brand">⚡ D-Money Payments</div>
+    <h1>Sign in</h1>
+    <p>Partner &amp; admin dashboard</p>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}<div class="flash {{ cat }}">{{ msg }}</div>{% endfor %}
+    {% endwith %}
+    <label>Email</label>
+    <input type="email" name="email" required autofocus>
+    <label>Password</label>
+    <input type="password" name="password" required>
+    <button class="btn" type="submit">Log in</button>
+    <div class="hint">Admin: <b>admin@platform.local</b> / <b>admin123</b><br>
+      Partner demo: <b>partner@acme.test</b> / <b>partner123</b></div>
+  </form>
+</div>
+{% endblock %}
