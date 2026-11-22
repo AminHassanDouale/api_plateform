@@ -135,19 +135,37 @@ Give D-Money this notify URL: `https://pay.sahansolution.com/user/v1/payments/d-
 
 ## Updating after a new push
 
+Pulls run **as root** — the deploy key lives in `/root/.ssh`, so `www-data`
+cannot authenticate to GitHub. Run this **one-time** setup so the repo pulls with
+the key and `github.com` directly (no reliance on a per-user SSH alias):
+
 ```bash
 cd /var/www/pay.sahansolution.com
-sudo -u www-data git pull
-sudo .venv/bin/pip install -r requirements.txt
-sudo systemctl restart gunicorn-dmoney
+git config --global --add safe.directory /var/www/pay.sahansolution.com
+git remote set-url origin git@github.com:AminHassanDouale/api_plateform.git
+git config core.sshCommand "ssh -i /root/.ssh/dmoney_deploy -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+```
+
+Then every update (pull as root, hand files back to www-data, restart):
+
+```bash
+cd /var/www/pay.sahansolution.com
+git pull
+chown -R www-data:www-data /var/www/pay.sahansolution.com
+.venv/bin/pip install -r requirements.txt   # only if dependencies changed
+systemctl restart gunicorn-dmoney
 ```
 
 ## Reconciliation (optional, catches missed webhooks)
 
-Add a cron entry to promote stale PENDING payments every 5 minutes:
+Create a writable log file, then add a cron job. It `cd`s into the app, loads
+`.env` (so it respects SIMULATE / live credentials — cron does not inherit them),
+and runs every 5 minutes:
 
 ```bash
-echo '*/5 * * * * www-data cd /var/www/pay.sahansolution.com && .venv/bin/python reconcile_job.py >> /var/log/dmoney-reconcile.log 2>&1' | sudo tee /etc/cron.d/dmoney-reconcile
+touch /var/log/dmoney-reconcile.log
+chown www-data:www-data /var/log/dmoney-reconcile.log
+echo '*/5 * * * * www-data cd /var/www/pay.sahansolution.com && set -a && . ./.env && set +a && .venv/bin/python reconcile_job.py >> /var/log/dmoney-reconcile.log 2>&1' | sudo tee /etc/cron.d/dmoney-reconcile
 ```
 
 ## Logs & troubleshooting
