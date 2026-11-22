@@ -7,7 +7,7 @@ from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
 
 from ..dmoney import DMoneyClient, DMoneyError
-from ..models import ApiKey, Partner, Payment, User, db
+from ..models import ApiKey, Partner, Payment, User, WebhookEvent, db
 from ..security import (admin_required, generate_api_key, hash_password)
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -177,6 +177,22 @@ def sandbox_create():
     db.session.commit()
     flash(f"Created test payment {pay.public_id} — {amount_str} {currency}.", "success")
     return redirect(url_for("admin.sandbox"))
+
+
+@admin_bp.get("/logs")
+@admin_required
+def logs():
+    """Live activity log — inbound D-Money webhook notifications, newest first."""
+    events = (WebhookEvent.query
+              .order_by(WebhookEvent.received_at.desc())
+              .limit(100).all())
+    stats = {
+        "events": WebhookEvent.query.count(),
+        "verified": WebhookEvent.query.filter_by(signature_verified=True).count(),
+        "payments": Payment.query.count(),
+        "pending": Payment.query.filter_by(status="PENDING").count(),
+    }
+    return render_template("admin/logs.html", events=events, stats=stats)
 
 
 @admin_bp.post("/sandbox/<public_id>/simulate")

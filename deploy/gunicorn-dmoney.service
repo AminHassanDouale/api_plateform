@@ -9,6 +9,9 @@ Group=www-data
 WorkingDirectory=/var/www/pay.sahansolution.com
 EnvironmentFile=/var/www/pay.sahansolution.com/.env
 Environment=PYTHONUNBUFFERED=1
+# gunicorn 27's control server writes $HOME/.gunicorn; www-data's home (/var/www)
+# isn't writable, so point HOME at the private tmp dir to silence the error.
+Environment=HOME=/tmp
 RuntimeDirectory=gunicorn-dmoney
 ExecStart=/var/www/pay.sahansolution.com/.venv/bin/gunicorn \
     --workers 3 \

@@ -17,6 +17,7 @@
         <a href="{{ url_for('admin.new_partner') }}" class="{{ 'on' if request.endpoint=='admin.new_partner' }}">+ New partner</a>
         <a href="{{ url_for('dashboard.payments') }}" class="{{ 'on' if request.endpoint=='dashboard.payments' }}">All payments</a>
         <a href="{{ url_for('admin.sandbox') }}" class="{{ 'on' if request.endpoint=='admin.sandbox' }}">🧪 Sandbox</a>
+        <a href="{{ url_for('admin.logs') }}" class="{{ 'on' if request.endpoint=='admin.logs' }}">📋 Logs</a>
       {% else %}
         <a href="{{ url_for('dashboard.payments') }}" class="{{ 'on' if request.endpoint=='dashboard.payments' }}">Payments</a>
         <a href="{{ url_for('dashboard.developers') }}" class="{{ 'on' if request.endpoint=='dashboard.developers' }}">Developers</a>

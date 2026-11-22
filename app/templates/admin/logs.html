@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Logs · D-Money{% endblock %}
+{% block body %}
+<style>
+.log-stats{display:flex;gap:14px;flex-wrap:wrap;margin:0 0 18px}
+.log-stats .s{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 16px;min-width:110px}
+.log-stats .n{font-size:22px;font-weight:700}
+.log-stats .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.log-payload{font-family:"SF Mono",Consolas,monospace;font-size:11px;white-space:pre-wrap;word-break:break-all;background:#0f172a;color:#e2e8f0;padding:10px;border-radius:8px;margin-top:6px;max-height:220px;overflow:auto}
+details summary{cursor:pointer;color:var(--brand);font-size:12px}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#16a34a;margin-right:6px;animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+</style>
+
+<div class="toolbar">
+  <h1 style="margin:0">Platform Logs 📋</h1>
+  <label style="margin-left:auto;font-size:13px;user-select:none">
+    <span class="live-dot" id="dot"></span><input type="checkbox" id="auto" checked> Auto-refresh (10s)</label>
+</div>
+<p class="page-sub">Inbound D-Money webhook notifications — the platform's live activity log.
+  Raw gunicorn/request logs stay on the server (<code>journalctl -u gunicorn-dmoney -f</code>).</p>
+
+<div class="log-stats">
+  <div class="s"><div class="n">{{ stats.events }}</div><div class="l">Webhook events</div></div>
+  <div class="s"><div class="n">{{ stats.verified }}</div><div class="l">Signature OK</div></div>
+  <div class="s"><div class="n">{{ stats.payments }}</div><div class="l">Payments</div></div>
+  <div class="s"><div class="n">{{ stats.pending }}</div><div class="l">Pending</div></div>
+</div>
+
+<div class="panel">
+<table>
+  <thead>
+    <tr><th>Received (UTC)</th><th>Order key / Payment</th><th>Status</th><th>Signature</th><th>Payload</th></tr>
+  </thead>
+  <tbody>
+  {% for e in events %}
+    <tr>
+      <td><small>{{ e.received_at.strftime('%Y-%m-%d %H:%M:%S') if e.received_at else '—' }}</small></td>
+      <td class="mono"><small>{{ e.dedupe_key or '—' }}</small>
+        {% if e.payment %}<br><small><a href="{{ url_for('dashboard.payment_detail', public_id=e.payment.public_id) }}">{{ e.payment.reference or e.payment.public_id }}</a></small>{% endif %}
+      </td>
+      <td>
+        {% if e.payment %}<span class="badge {{ e.payment.status|badge }}">{{ e.payment.status }}</span>
+        {% else %}<span class="badge muted">no match</span>{% endif %}
+      </td>
+      <td>
+        {% if e.signature_verified %}<span class="badge ok">✓ {{ e.verify_method or 'ok' }}</span>
+        {% else %}<span class="badge warn">unverified</span>{% endif %}
+      </td>
+      <td><details><summary>view</summary><div class="log-payload">{{ e.payload or '(empty)' }}</div></details></td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5"><div class="empty">No webhook events yet — they appear here the moment D-Money notifies the platform (or you simulate a payment in the Sandbox).</div></td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+<script>
+(function(){
+  var auto = document.getElementById('auto'), dot = document.getElementById('dot'), timer;
+  function arm(){ timer = setTimeout(function(){ if(auto.checked) location.reload(); }, 10000); }
+  auto.addEventListener('change', function(){
+    dot.style.visibility = auto.checked ? 'visible' : 'hidden';
+    if(!auto.checked){ clearTimeout(timer); } else { location.reload(); }
+  });
+  arm();
+})();
+</script>
+{% endblock %}
