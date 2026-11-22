@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Sandbox · D-Money{% endblock %}
+{% block body %}
+<style>
+.sbx-form{display:flex;gap:14px;flex-wrap:wrap;align-items:end}
+.sbx-form label{display:block;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px}
+.sbx-form input,.sbx-form select{padding:8px 10px;border:1px solid #d7dee6;border-radius:8px;font-size:14px}
+.sbx-form input{width:160px}
+.sbx-actions{display:flex;gap:6px;flex-wrap:wrap}
+.sbx-actions form{margin:0}
+</style>
+
+<h1>Payment Sandbox 🧪</h1>
+<p class="page-sub">Create test payments and simulate their outcome — all internal, no real money moves.</p>
+
+{% if simulate %}
+<div class="flash success" style="margin-bottom:18px">
+  <b>SIMULATE mode is ON.</b> Checkout URLs are really signed but use a fake
+  <code>prepay_id</code>, so the D-Money page itself won't process a payment.
+  Use <b>Mark paid</b> below to stand in for D-Money confirming it.
+</div>
+{% endif %}
+
+<div class="panel" style="padding:20px;margin-bottom:26px">
+  <h2 style="margin:0 0 14px">Create a test payment</h2>
+  <form method="post" action="{{ url_for('admin.sandbox_create') }}" class="sbx-form">
+    <div><label>Amount</label><input name="amount" value="250.00"></div>
+    <div><label>Currency</label>
+      <select name="currency">
+        <option value="DJF">DJF</option>
+        <option value="USD">USD</option>
+        <option value="EUR">EUR</option>
+      </select>
+    </div>
+    <div><label>Reference (order id)</label><input name="reference" value="{{ suggested_ref }}"></div>
+    <div><label>Title</label><input name="title" value="Test checkout"></div>
+    <div><button class="btn" type="submit">+ Create test payment</button></div>
+  </form>
+</div>
+
+<h2>Recent test payments</h2>
+<div class="panel">
+<table>
+  <thead>
+    <tr><th>Reference</th><th>Amount</th><th>Status</th><th>Created</th><th>Actions</th></tr>
+  </thead>
+  <tbody>
+  {% for p in payments %}
+    <tr>
+      <td class="mono">{{ p.reference }}</td>
+      <td>{{ p.amount }} {{ p.currency }}</td>
+      <td><span class="badge {{ p.status|badge }}">{{ p.status }}</span></td>
+      <td><small>{{ p.created_at.strftime('%m-%d %H:%M') }}</small></td>
+      <td>
+        <div class="sbx-actions">
+          <a class="btn sm ghost" target="_blank"
+             href="{{ base_url }}/payment/return?payment_id={{ p.public_id }}">Return page ↗</a>
+          <a class="btn sm ghost" target="_blank" href="{{ p.checkout_url }}">Checkout ↗</a>
+          {% if p.status == 'PENDING' %}
+            <form method="post" action="{{ url_for('admin.sandbox_simulate', public_id=p.public_id) }}">
+              <input type="hidden" name="outcome" value="SUCCESS">
+              <button class="btn sm" type="submit">Mark paid</button>
+            </form>
+            <form method="post" action="{{ url_for('admin.sandbox_simulate', public_id=p.public_id) }}">
+              <input type="hidden" name="outcome" value="FAILED">
+              <button class="btn sm danger" type="submit">Mark failed</button>
+            </form>
+          {% endif %}
+        </div>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="5"><div class="empty">No test payments yet — create one above.</div></td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}
