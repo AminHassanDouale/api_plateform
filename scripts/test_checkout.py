@@ -7,7 +7,13 @@ PENDING payment through the real API, and prints the checkout URL plus the
 customer return-page URL. In SIMULATE mode it also prints a ready-to-run curl
 that stands in for D-Money confirming the payment.
 """
+import os
 import random
+import sys
+
+# Make `app` importable no matter where this script is launched from
+# (running `python scripts/test_checkout.py` otherwise only sees scripts/).
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app import create_app
 from app.models import db, ApiKey, Partner, Payment
