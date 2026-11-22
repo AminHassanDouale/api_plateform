@@ -130,9 +130,14 @@ def sandbox():
     partner = _test_partner()
     payments = (Payment.query.filter_by(partner_id=partner.id)
                 .order_by(Payment.created_at.desc()).limit(25).all())
+    created = None
+    cid = request.args.get("created")
+    if cid:
+        created = Payment.query.filter_by(public_id=cid, partner_id=partner.id).first()
     return render_template(
         "admin/sandbox.html",
         payments=payments,
+        created=created,
         base_url=current_app.config["PLATFORM_BASE_URL"].rstrip("/"),
         suggested_ref="TEST-" + secrets.token_hex(3).upper(),
         simulate=current_app.config["DMONEY_SIMULATE"],
@@ -175,9 +180,9 @@ def sandbox_create():
                   return_url=base + "/payment/return")
     db.session.add(pay)
     db.session.commit()
-    # Send the operator straight to the D-Money checkout page for this payment
-    # (via our branded /checkout/<id>, which forwards to the gateway).
-    return redirect(url_for("public.checkout", public_id=pay.public_id))
+    # Back to the sandbox with the new payment highlighted so its checkout URL is
+    # shown in a copy box (open it in a browser to reach the D-Money pay page).
+    return redirect(url_for("admin.sandbox", created=pay.public_id))
 
 
 @admin_bp.get("/logs")

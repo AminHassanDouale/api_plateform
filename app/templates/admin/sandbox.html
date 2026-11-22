@@ -11,8 +11,38 @@
 </style>
 
 <h1>Payment Sandbox 🧪</h1>
-<p class="page-sub">Create a payment and go straight to the D-Money checkout page (test gateway — no real money).
-  Simulate the outcome of any pending payment from the table below.</p>
+<p class="page-sub">Create a payment, then copy its D-Money checkout URL and open it in a browser to pay
+  (test gateway — no real money). Simulate the outcome of any pending payment below.</p>
+
+{% if created %}
+<div class="panel" style="padding:18px 20px;margin-bottom:22px;border-left:4px solid #16a34a">
+  <b>✅ Created {{ created.public_id }} — {{ created.amount }} {{ created.currency }} ({{ created.status }})</b>
+  <div style="margin-top:12px">
+    <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px">
+      D-Money checkout URL — copy &amp; open in a browser to pay</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <input id="chkurl" readonly value="{{ created.checkout_url }}"
+             onclick="this.select()"
+             style="flex:1;min-width:280px;font-family:monospace;font-size:12px;padding:9px;border:1px solid #d7dee6;border-radius:8px">
+      <button class="btn sm" type="button" id="copybtn">Copy</button>
+      <a class="btn sm ghost" target="_blank" href="{{ created.checkout_url }}">Open ↗</a>
+    </div>
+    <div style="margin-top:9px;font-size:12px;color:var(--muted)">
+      Branded link: <span class="mono">{{ base_url }}/checkout/{{ created.public_id }}</span>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var btn = document.getElementById('copybtn'), inp = document.getElementById('chkurl');
+  btn.addEventListener('click', function(){
+    inp.select(); inp.setSelectionRange(0, 99999);
+    try { navigator.clipboard.writeText(inp.value); } catch(e) { try { document.execCommand('copy'); } catch(_){} }
+    btn.textContent = 'Copied!'; setTimeout(function(){ btn.textContent = 'Copy'; }, 1500);
+  });
+})();
+</script>
+{% endif %}
 
 {% if simulate %}
 <div class="flash success" style="margin-bottom:18px">
@@ -35,7 +65,7 @@
     </div>
     <div><label>Reference (order id)</label><input name="reference" value="{{ suggested_ref }}"></div>
     <div><label>Title</label><input name="title" value="Test checkout"></div>
-    <div><button class="btn" type="submit">Create &amp; go to checkout →</button></div>
+    <div><button class="btn" type="submit">+ Create test payment</button></div>
   </form>
 </div>
 
