@@ -81,8 +81,12 @@ class DMoneyClient:
         self.simulate = cfg["DMONEY_SIMULATE"]
         self.sig_header = cfg["DMONEY_SIGNATURE_HEADER"]
 
-        b64 = (cfg.get("DMONEY_PRIVATE_KEY_B64") or "").strip() or DEFAULT_PRIVATE_KEY_B64
-        self.private_key = self._load_private_key(b64)
+        b64 = (cfg.get("DMONEY_PRIVATE_KEY_B64") or "").strip()
+        key_path = (cfg.get("DMONEY_PRIVATE_KEY_PATH") or "").strip()
+        if not b64 and key_path and os.path.exists(key_path):
+            self.private_key = self._load_private_key_file(key_path)
+        else:
+            self.private_key = self._load_private_key(b64 or DEFAULT_PRIVATE_KEY_B64)
         self.public_key = self._load_public_key(cfg.get("DMONEY_PUBLIC_KEY_PATH"))
 
         self._token = None
@@ -94,6 +98,15 @@ class DMoneyClient:
         body = "\n".join(textwrap.wrap(b64_body.strip(), 64))
         pem = f"-----BEGIN PRIVATE KEY-----\n{body}\n-----END PRIVATE KEY-----\n"
         return serialization.load_pem_private_key(pem.encode(), password=None)
+
+    @staticmethod
+    def _load_private_key_file(path: str):
+        """Load the merchant key from a file — either a full PEM or a raw base64 body."""
+        with open(path, "rb") as fh:
+            data = fh.read().strip()
+        if b"-----BEGIN" in data:
+            return serialization.load_pem_private_key(data, password=None)
+        return DMoneyClient._load_private_key(data.decode())
 
     @staticmethod
     def _load_public_key(path):

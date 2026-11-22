@@ -50,8 +50,11 @@ class Config:
         "DMONEY_DEFAULT_REDIRECT_URL", "https://pay.sahansolution.com/payment/return"
     )
 
-    # Merchant private key (raw base64 PKCS#8 body; default = PG.py test key).
+    # Merchant private key. Either inline (raw base64 PKCS#8 body) OR a file path.
+    # Prefer the PATH in production: the key is ~2.4 KB, which overflows systemd's
+    # EnvironmentFile 2048-byte line limit if kept inline in a .env.
     DMONEY_PRIVATE_KEY_B64 = os.getenv("DMONEY_PRIVATE_KEY_B64", "")
+    DMONEY_PRIVATE_KEY_PATH = os.getenv("DMONEY_PRIVATE_KEY_PATH", "")
 
     # D-Money PUBLIC key (PEM) for verifying inbound webhook signatures.
     DMONEY_PUBLIC_KEY_PATH = os.getenv(
